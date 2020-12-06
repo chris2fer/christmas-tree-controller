@@ -1,0 +1,38 @@
+# Welcome to Serverless!
+
+service: tree-controler
+frameworkVersion: '2'
+
+provider:
+  name: aws
+  runtime: python3.8
+  stage: dev
+  region: us-east-2
+  apiGateway:
+    shouldStartNameWithService: true
+  environment:
+    CLOUD_USER: ${ssm:/TPLINK_CLOUD_USER}
+    CLOUD_SECRET: ${ssm:/TPLINK_CLOUD_SECRET}
+    DEVICE_ID: ${ssm:/TPLINK_DEVICE_ID}
+    TWILIO_ACT_SID: ${ssm:/TWILIO_ACT_SID}
+    TWILIO_AUTH_TOKEN: ${ssm:/TWILIO_AUTH_TOKEN}
+    TWILIO_SMS_NUMBER: ${ssm:/TWILIO_SMS_NUMBER}
+
+package:
+  include:
+    - main.py
+#    - include-me-dir/**
+  exclude:
+    - node_modules/**
+    - venv/**
+
+functions:
+  sms-handler:
+    handler: main.handler
+    events:
+      - http:
+          path: v1/toggle
+          method: get
+
+plugins:
+  - serverless-python-requirements
